@@ -315,20 +315,20 @@ class DistributedPerformanceTest extends PerformanceTest {
 
                 if (failure) {
                     source.beforeTest(testCaseDescriptor)
+                    try {
+//                def systemOut = testResult."system-out".text()
+//                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, systemOut))
+                        def systemErr = testResult."system-err".text()
+                        myTestOutputListenerBroadcaster.getSource().onOutput(testCaseDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, systemErr))
+                    } catch (Exception e) {
+                        e.printStackTrace()
+                    }
                     source.afterTest(testCaseDescriptor, new DefaultTestResult(TestResult.ResultType.FAILURE, 0, 0, 1, 0, 1, []))
                 } else if (!skipped) {
                     source.beforeTest(testCaseDescriptor)
                     source.afterTest(testCaseDescriptor, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 1, 1, 0, []))
                 }
             }
-//            try {
-////                def systemOut = testResult."system-out".text()
-////                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, systemOut))
-//                def systemErr = testResult."system-err".text()
-//                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, systemErr))
-//            } catch (Exception e) {
-//                e.printStackTrace()
-//            }
             testListener.afterSuite(testSuiteDescriptor, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, []))
         }
         testListener.afterSuite(workerSuite, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, []))
