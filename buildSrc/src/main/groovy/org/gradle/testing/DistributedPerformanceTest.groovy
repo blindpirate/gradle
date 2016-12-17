@@ -287,22 +287,28 @@ class DistributedPerformanceTest extends PerformanceTest {
         }
     }
 
-    private static int id = 0;
+    public static int id = 0
 
     @TypeChecked(TypeCheckingMode.SKIP)
     private void fireTestListener(List<File> results) {
         def xmlFiles = results.findAll { it.name.endsWith('.xml') }
-        def rootSuite = new DefaultTestSuiteDescriptor(id++, "rootSuite" + id)
-        def workerSuite = new DecoratingTestDescriptor(new DefaultTestSuiteDescriptor(id++, "workerSuite" + id), rootSuite)
+        def rootSuite = new DefaultTestSuiteDescriptor(DistributedPerformanceTest.id++, "rootSuite" + DistributedPerformanceTest.id)
+        def workerSuite = new DecoratingTestDescriptor(new DefaultTestSuiteDescriptor(DistributedPerformanceTest.id++, "workerSuite" + DistributedPerformanceTest.id), rootSuite)
         def testListener = myTestListenerBroadcaster.getSource()
         testListener.beforeSuite(rootSuite)
         testListener.beforeSuite(workerSuite)
         xmlFiles.each {
             def testResult = new XmlSlurper().parse(it)
-            def testSuiteDescriptor = new DecoratingTestDescriptor(new DefaultTestClassDescriptor(id++, testResult.@name.text()), workerSuite)
+            def suiteName = testResult.@name.text()
+            println "suiteName: ${suiteName}"
+            def testSuiteDescriptor = new DecoratingTestDescriptor(new DefaultTestClassDescriptor(DistributedPerformanceTest.id++, suiteName), workerSuite)
             testListener.beforeSuite(testSuiteDescriptor)
             testResult.testCase.each { testCase ->
-                def testCaseDescriptor =  new DecoratingTestDescriptor(new DefaultTestMethodDescriptor(id++, testCase.@classname.text(), testCase.@name.text()), testSuiteDescriptor)
+                def testCaseClassName = testCase.@classname.text()
+                def testMethodName = testCase.@name.text()
+                println "testCaseClassName: ${testCaseClassName}"
+                println "testMethodName: ${testMethodName}"
+                def testCaseDescriptor =  new DecoratingTestDescriptor(new DefaultTestMethodDescriptor(DistributedPerformanceTest.id++, testCaseClassName, testMethodName), testSuiteDescriptor)
                 def source = testListener
                 def skipped = testCase.skipped
                 def failure = testCase.failure
