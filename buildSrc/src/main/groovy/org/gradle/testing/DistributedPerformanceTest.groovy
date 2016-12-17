@@ -303,7 +303,7 @@ class DistributedPerformanceTest extends PerformanceTest {
             println "suiteName: ${suiteName}"
             def testSuiteDescriptor = new DecoratingTestDescriptor(new DefaultTestClassDescriptor(DistributedPerformanceTest.id++, suiteName), workerSuite)
             testListener.beforeSuite(testSuiteDescriptor)
-            testResult.testCase.each { testCase ->
+            testResult.testcase.each { testCase ->
                 def testCaseClassName = testCase.@classname.text()
                 def testMethodName = testCase.@name.text()
                 println "testCaseClassName: ${testCaseClassName}"
