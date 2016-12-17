@@ -287,40 +287,42 @@ class DistributedPerformanceTest extends PerformanceTest {
         }
     }
 
+    private static int id = 0;
+
     @TypeChecked(TypeCheckingMode.SKIP)
     private void fireTestListener(List<File> results) {
         def xmlFiles = results.findAll { it.name.endsWith('.xml') }
-        def rootSuite = new DefaultTestSuiteDescriptor(1, "rootSuite")
-        def workerSuite = new DecoratingTestDescriptor(new DefaultTestSuiteDescriptor(2, "workerSuite"), rootSuite)
+        def rootSuite = new DefaultTestSuiteDescriptor(id++, "rootSuite" + id)
+        def workerSuite = new DecoratingTestDescriptor(new DefaultTestSuiteDescriptor(id++, "workerSuite" + id), rootSuite)
         def testListener = myTestListenerBroadcaster.getSource()
         testListener.beforeSuite(rootSuite)
         testListener.beforeSuite(workerSuite)
         xmlFiles.each {
             def testResult = new XmlSlurper().parse(it)
-            int id = 3
             def testSuiteDescriptor = new DecoratingTestDescriptor(new DefaultTestClassDescriptor(id++, testResult.@name.text()), workerSuite)
             testListener.beforeSuite(testSuiteDescriptor)
             testResult.testCase.each { testCase ->
                 def testCaseDescriptor =  new DecoratingTestDescriptor(new DefaultTestMethodDescriptor(id++, testCase.@classname.text(), testCase.@name.text()), testSuiteDescriptor)
                 def source = testListener
-                source.beforeTest(testCaseDescriptor)
                 def skipped = testCase.skipped
                 def failure = testCase.failure
 
                 if (failure) {
+                    source.beforeTest(testCaseDescriptor)
                     source.afterTest(testCaseDescriptor, new DefaultTestResult(TestResult.ResultType.FAILURE, 0, 0, 1, 0, 1, []))
                 } else if (!skipped) {
+                    source.beforeTest(testCaseDescriptor)
                     source.afterTest(testCaseDescriptor, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 1, 1, 0, []))
                 }
             }
-            try {
-//                def systemOut = testResult."system-out".text()
-//                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, systemOut))
-                def systemErr = testResult."system-err".text()
-                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, systemErr))
-            } catch (Exception e) {
-                e.printStackTrace()
-            }
+//            try {
+////                def systemOut = testResult."system-out".text()
+////                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, systemOut))
+//                def systemErr = testResult."system-err".text()
+//                myTestOutputListenerBroadcaster.getSource().onOutput(testSuiteDescriptor, new DefaultTestOutputEvent(TestOutputEvent.Destination.StdErr, systemErr))
+//            } catch (Exception e) {
+//                e.printStackTrace()
+//            }
             testListener.afterSuite(testSuiteDescriptor, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, []))
         }
         testListener.afterSuite(workerSuite, new DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, []))
