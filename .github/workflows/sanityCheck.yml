@@ -30,6 +30,6 @@ jobs:
                 JAVA_TOOL_OPTIONS: -Dhttps.protocols=TLSv1.2
                 CI: 1
                 GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
-                BUILD_URL: https://github.com/blindpirate/gradle/actions/runs/${{ GITHUB_RUN_ID }}
+                BUILD_URL: https://github.com/blindpirate/gradle/actions/runs/$GITHUB_RUN_ID
 
 
