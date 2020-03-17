@@ -25,13 +25,13 @@ jobs:
             - name: Increase inotify
               run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
             - name: Sanity Check
-              run: ./gradlew --init-script gradle/init-scripts/build-scan.init.gradle.kts --build-cache -Dgradle.cache.remote.url=https://e.grdev.net/cache/ -Dgradle.cache.remote.username=gradle1 -Dgradle.cache.remote.password=${{ secrets.GRADLE_CACHE_REMOTE_PASSWORD }} -Dscan.tag.Check -Dscan.tag.QuickFeedbackLinuxOnly sanityCheck --stacktrace
+              run: ./gradlew --init-script gradle/init-scripts/build-scan.init.gradle.kts --build-cache -Dgradle.cache.remote.url=https://cache-node-california.grdev.net/cache/ -Dgradle.cache.remote.username=gradle1 -Dgradle.cache.remote.password=${{ secrets.GRADLE_CACHE_REMOTE_PASSWORD }} -Dscan.tag.Check -Dscan.tag.QuickFeedbackLinuxOnly sanityCheck --stacktrace
               env:
                 JAVA_TOOL_OPTIONS: -Dhttps.protocols=TLSv1.2
                 CI: 1
                 GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
-                BUILD_URL: https://github.com/blindpirate/gradle/actions/runs/$GITHUB_RUN_ID
-                BUILD_VCS_NUMBER: $GITHUB_SHA
+                BUILD_URL: https://github.com/blindpirate/gradle/actions/runs/${{ env.GITHUB_RUN_ID }}
+                BUILD_VCS_NUMBER: ${{ env.GITHUB_SHA }}
                 BUILD_TYPE_ID: Gradle_Check_SanityCheck
 
 
