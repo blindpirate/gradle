@@ -32,8 +32,6 @@ data class AccessorFragment(
     val metadata: MetadataWriter,
     val signature: JvmMethodSignature
 )
-
-
 internal
 typealias BytecodeWriter = BytecodeFragmentScope.() -> Unit
 
@@ -44,17 +42,13 @@ class BytecodeFragmentScope(
     writer: ClassWriter
 ) : ClassVisitor(ASM_LEVEL, writer)
 
-
 internal
 typealias MetadataWriter = MetadataFragmentScope.() -> Unit
-
 
 internal
 data class MetadataFragmentScope(
     val signature: JvmMethodSignature,
     val writer: KotlinClassMetadata.FileFacade.Writer
 )
-
-
 internal
 typealias Fragments = Pair<String, Sequence<AccessorFragment>>
