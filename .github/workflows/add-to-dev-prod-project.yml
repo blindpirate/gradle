@@ -8,9 +8,17 @@ on:
 
 jobs:
   add-to-dev-prod-project:
-    if: contains(github.event.issue.labels.*.name, '@dev-productivity')
     runs-on: ubuntu-latest
     steps:
+      - name: print context
+        uses: actions/github-script@v5
+        with:
+          script: |
+            if (context.payload.pull_request) {
+                console.log(`PR: ${JSON.stringify(context.payload.pull_request)}`)
+            } else if (context.payload.issue) {
+                console.log(`PR: ${JSON.stringify(context.payload.issue)}`)
+            }
       - name: Get project data
         run: |
           gh api graphql -f query='
