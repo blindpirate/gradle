@@ -28,7 +28,15 @@ jobs:
       - name: Check PR commits
         id: run_check
         run: |
-          groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) 2>&1
+          groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) 2>&1 > output.txt
+      - name: Read output file
+        id: read_output
+        run: |
+          cat output.txt
+          OUTPUT=$(cat output.txt)
+          echo "OUTPUT<<EOF" >> $GITHUB_ENV
+          echo "$OUTPUT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Comment on PR if check failed
         if: ${{ failure() }}
         uses: actions/github-script@v6
@@ -38,7 +46,7 @@ jobs:
             const output = `
             Some bad merge is found:
             \`\`\`
-            ${{ steps.run_check.outputs.stdout }}
+            ${{ env.OUTPUT }}
             \`\`\`
             `;
             github.rest.issues.createComment({
