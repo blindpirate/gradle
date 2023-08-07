@@ -2,7 +2,9 @@
 name: Check bad merge commit
 on:
   pull_request:
-    types: [ opened ]
+    types:
+     - opened
+     - synchronize
 
 jobs:
   check_pr_commits:
