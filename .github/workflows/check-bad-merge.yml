@@ -29,12 +29,9 @@ jobs:
         id: run_check
         run: |
           groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) 2>&1
-      - name: Set up GitHub API client
-        if: ${{ failure() }}
-        uses: actions/github-script@v4
       - name: Comment on PR if check failed
         if: ${{ failure() }}
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
