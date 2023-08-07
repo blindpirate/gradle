@@ -44,20 +44,16 @@ class CheckBadMerge {
         List<String> p1Branches = branchesOf(parentCommits[0])
         List<String> p2Branches = branchesOf(parentCommits[1])
 
-        String masterParent, releaseParent;
-        if (p1Branches.contains("origin/master") && p2Branches.contains("origin/master") && p2Branches.any { it.startsWith("origin/release") }) {
-            masterParent = parentCommits[0]
-            releaseParent = parentCommits[1]
-        } else if (p1Branches.contains("origin/master") && p2Branches.contains("origin/master") && p1Branches.any { it.startsWith("origin/release") }) {
-            masterParent = parentCommits[1]
-            releaseParent = parentCommits[0]
+        if (p1Branches.contains("origin/master") && !p2Branches.contains("origin/master") && p2Branches.any { it.startsWith("origin/release") }) {
+            List<String> badFiles = MONITORED_FILES.grep { isBadFileInMergeCommit(it, commit, parentCommits[0], parentCommits[1]) }
+            if (!badFiles.isEmpty()) {
+                throw new RuntimeException("Found bad files in merge commit $commit: $badFiles")
+            } else {
+                println("No bad files found in $commit")
+            }
         } else {
             println("$commit is not a merge commit we're looking for. Parents: $parentCommits, p1Branches: $p1Branches, p2Branches: $p2Branches")
-            return
         }
-
-        List<String> badFiles = MONITORED_FILES.grep { isBadFileInMergeCommit(it, commit, masterParent, releaseParent) }
-        throw new RuntimeException("Found bad files in merge commit $commit: $badFiles")
     }
 
     /**
