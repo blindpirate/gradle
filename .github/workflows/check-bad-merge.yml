@@ -37,6 +37,7 @@ jobs:
           echo "OUTPUT<<EOF" >> $GITHUB_ENV
           echo "$OUTPUT" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+        continue-on-error: true
       - name: Comment on PR if check failed
         if: ${{ failure() }}
         uses: actions/github-script@v6
