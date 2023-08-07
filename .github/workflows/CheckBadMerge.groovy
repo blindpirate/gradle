@@ -32,6 +32,7 @@ class CheckBadMerge {
         List<String> parentCommits = parentCommitsOf(commit)
         if (parentCommits.size() != 2) {
             println("$commit is not a merge commit we're looking for. Parents: $parentCommits")
+            return
         }
 
         // The correct state we are looking for is:
