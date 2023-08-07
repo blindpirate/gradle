@@ -1,6 +1,6 @@
 The Gradle team is excited to announce Gradle @version@. change on release
 
-This release features [1](), [2](), ... [n](), and more. change on master
+This release features [1](), [2](), ... [n](), and more. change on release
 
 <!-- 
 Include only their name, impactful features should be called out separately below.
