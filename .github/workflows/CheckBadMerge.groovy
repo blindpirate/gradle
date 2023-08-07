@@ -21,6 +21,7 @@ class CheckBadMerge {
     ]
 
     static void main(String[] commits) {
+        println("Commits to check: ${Arrays.toString(commits)}")
         try {
             commits.each { checkCommit(it) }
         } finally {
