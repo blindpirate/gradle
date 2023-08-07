@@ -45,10 +45,10 @@ class CheckBadMerge {
         List<String> p2Branches = branchesOf(parentCommits[1])
 
         String masterParent, releaseParent;
-        if (p1Branches.contains("master") && p2Branches.contains("master") && p2Branches.any { it.startsWith("release") }) {
+        if (p1Branches.contains("origin/master") && p2Branches.contains("origin/master") && p2Branches.any { it.startsWith("origin/release") }) {
             masterParent = parentCommits[0]
             releaseParent = parentCommits[1]
-        } else if (p1Branches.contains("master") && p2Branches.contains("master") && p1Branches.any { it.startsWith("release") }) {
+        } else if (p1Branches.contains("origin/master") && p2Branches.contains("origin/master") && p1Branches.any { it.startsWith("origin/release") }) {
             masterParent = parentCommits[1]
             releaseParent = parentCommits[0]
         } else {
@@ -89,7 +89,7 @@ class CheckBadMerge {
     }
 
     static List<String> branchesOf(String commit) {
-        return getStdout("git branch --contains $commit")
+        return getStdout("git branch -r --contains $commit")
             .readLines()
             .collect { it.replace("*", "") } // remove the * from the current branch, e.g. * master -> master
             .collect { it.trim() }
