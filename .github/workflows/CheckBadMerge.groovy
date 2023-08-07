@@ -38,22 +38,25 @@ class CheckBadMerge {
 
         // The correct state we are looking for is:
         // 1. It's a merge commit.
-        // 2. The first parent commit is from master only.
-        // 3. The second parent commit is from master and release branch.
+        // 2. One of its parent commits is from master only.
+        // 3. Another parent commit is from master and release branch.
         // Otherwise, skip this commit.
         List<String> p1Branches = branchesOf(parentCommits[0])
-        if (!p1Branches.contains("master")) {
-            println("The 1st parent commit ${parentCommits[0]} doesn't contain master ($p1Branches), skip.")
-            return
-        }
-
         List<String> p2Branches = branchesOf(parentCommits[1])
-        if (!p2Branches.contains("master") || !p2Branches.any { it.startsWith("release") }) {
-            println("The 2nd parent commit ${parentCommits[1]} doesn't contain master/releaseX ($p2Branches), skip.")
+
+        String masterParent, releaseParent;
+        if (p1Branches.contains("master") && p2Branches.contains("master") && p2Branches.any { it.startsWith("release") }) {
+            masterParent = parentCommits[0]
+            releaseParent = parentCommits[1]
+        } else if (p1Branches.contains("master") && p2Branches.contains("master") && p1Branches.any { it.startsWith("release") }) {
+            masterParent = parentCommits[1]
+            releaseParent = parentCommits[0]
+        } else {
+            println("$commit is not a merge commit we're looking for. Parents: $parentCommits, p1Branches: $p1Branches, p2Branches: $p2Branches")
             return
         }
 
-        List<String> badFiles = MONITORED_FILES.grep { isBadFileInMergeCommit(it, commit, parentCommits[0], parentCommits[1]) }
+        List<String> badFiles = MONITORED_FILES.grep { isBadFileInMergeCommit(it, commit, masterParent, releaseParent) }
         throw new RuntimeException("Found bad files in merge commit $commit: $badFiles")
     }
 
