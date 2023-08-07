@@ -31,13 +31,13 @@ jobs:
           groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) 2>&1 > output.txt
       - name: Read output file
         id: read_output
+        if: ${{ always() }}
         run: |
           cat output.txt
           OUTPUT=$(cat output.txt)
           echo "OUTPUT<<EOF" >> $GITHUB_ENV
           echo "$OUTPUT" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-        continue-on-error: true
       - name: Comment on PR if check failed
         if: ${{ failure() }}
         uses: actions/github-script@v6
