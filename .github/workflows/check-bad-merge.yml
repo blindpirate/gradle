@@ -28,7 +28,7 @@ jobs:
       - name: Check PR commits
         id: run_check
         run: |
-          groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) 2>&1 > output.txt
+          groovy .github/workflows/CheckBadMerge.groovy $(<pr_commits.txt) > output.txt 2>&1
       - name: Read output file
         id: read_output
         if: ${{ always() }}
