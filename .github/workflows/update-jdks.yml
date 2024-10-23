@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Update jdks.yaml
-        uses: gradle/issue-management-action/update-jdks@bz-update-jdks
+        uses: blindpirate/issue-management-action/update-jdks@bz-update-jdks
       - name: Create a new branch
         id: create_branch
         run: |
