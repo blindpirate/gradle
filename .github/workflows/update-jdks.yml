@@ -1,0 +1,57 @@
+name: Update jdks.yaml
+
+on:
+  workflow_dispatch: # Allows manual triggering of the action
+  schedule: # Runs the action on the first day of every month at 3:42 UTC
+    - cron: '42 3 1 * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update-jdks:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Update jdks.yaml
+        uses: gradle/issue-management-action/update-jdks@bz-update-jdks
+      - name: Create a new branch
+        id: create_branch
+        run: |
+          BRANCH_NAME="update-jdks-$(date +'%Y%m%d-%H%M%S')"
+          git checkout -b $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add jdks.yaml
+          # Check if there are any changes in jdks.yaml
+          if git diff --quiet; then
+            echo "No changes detected."
+            echo "no_changes=true" >> $GITHUB_ENV
+          else
+            echo "Changes detected."
+            echo "no_changes=false" >> $GITHUB_ENV
+          fi
+      - name: Commit and push changes
+        if: env.no_changes == 'false'
+        run: |
+          git commit -m "Update jdks.yaml"
+          git push origin ${{ env.branch_name }}
+      - name: Create Pull Request
+        if: env.no_changes == 'false'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update jdks.yaml"
+          title: "Update of jdks.yaml"
+          body: "This PR contains automated updates to the jdks.yaml file."
+          branch: ${{ env.branch_name }}
