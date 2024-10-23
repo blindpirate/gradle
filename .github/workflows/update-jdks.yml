@@ -32,10 +32,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          cat .teamcity/jdks.yaml
-          pwd
-          git add .teamcity/jdks.yaml
-          git diff
           if git diff --quiet; then
             echo "No changes detected."
             echo "no_changes=true" >> $GITHUB_ENV
@@ -46,6 +42,7 @@ jobs:
       - name: Commit and push changes
         if: env.no_changes == 'false'
         run: |
+          git add .teamcity/jdks.yaml
           git commit -m "Update jdks.yaml"
           git push origin ${{ env.branch_name }}
       - name: Create Pull Request
