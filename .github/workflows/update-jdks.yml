@@ -22,7 +22,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Update jdks.yaml
-        uses: blindpirate/issue-management-action/update-jdks@fuck-update-jdks
+        uses: gradle/update-jdks-action@bz-update-jdks
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
