@@ -19,42 +19,15 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Set up authentication
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
       - name: Update jdks.yaml
         uses: blindpirate/issue-management-action/update-jdks@fuck-update-jdks
-      - name: Create a new branch
-        id: create_branch
-        run: |
-          BRANCH_NAME="update-jdks-$(date +'%Y%m%d-%H%M%S')"
-          git checkout -b $BRANCH_NAME
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
-      - name: Check for changes
-        id: check_changes
-        run: |
-          if git diff --quiet; then
-            echo "No changes detected."
-            echo "no_changes=true" >> $GITHUB_ENV
-          else
-            echo "Changes detected."
-            echo "no_changes=false" >> $GITHUB_ENV
-          fi
-      - name: Commit and push changes
-        if: env.no_changes == 'false'
-        run: |
-          git add .teamcity/jdks.yaml
-          git commit -m "Update jdks.yaml"
-          git push origin ${{ env.branch_name }}
       - name: Create Pull Request
-        if: env.no_changes == 'false'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update jdks.yaml"
-          title: "Update of jdks.yaml"
+          add-paths: 
+          - .teamcity/jdks.yaml
+          title: "Update jdks.yaml"
           body: "This PR contains automated updates to the jdks.yaml file."
-          branch: ${{ env.branch_name }}
-          base: master
+          delete-branch: true
+          branch-suffix: timestamp
