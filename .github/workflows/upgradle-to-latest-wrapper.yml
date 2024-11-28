@@ -1,0 +1,26 @@
+name: Update Gradle Wrapper
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-gradle-wrapper:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Update Gradle wrapper
+        run: node .github/workflows/update-gradle-wrapper.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
