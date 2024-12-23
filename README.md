@@ -1,3 +1,4 @@
+
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="images/gradle-white-primary.png" width="700px">
