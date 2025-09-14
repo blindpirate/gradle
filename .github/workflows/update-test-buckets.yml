@@ -41,7 +41,7 @@ jobs:
       - name: Check for changes in ci-health repository
         id: check-changes
         run: |
-          cd /tmp/gradle-gradle
+          cd ${GITHUB_WORKSPACE}
           if [ -n "$(git status --porcelain)" ]; then
             echo "changes=true" >> $GITHUB_OUTPUT
           else
