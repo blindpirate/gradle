@@ -26,11 +26,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Clone gradle/gradle master branch
-        run: |
-          git clone https://github.com/gradle/gradle.git /tmp/gradle-gradle
-          cd /tmp/gradle-gradle
-          git checkout master
       - name: Clone gradle/ci-health repository
         run: |
           git clone https://${{ env.BOT_GRADLE_GITHUB_TOKEN }}@github.com/gradle/ci-health.git /tmp/gradle-ci-health
@@ -38,7 +33,7 @@ jobs:
         run: |
           cd /tmp/gradle-ci-health
           git checkout bz/cleanup
-          ./gradlew :run --args '/tmp/test-class-data.json /tmp/gradle-gradle'
+          ./gradlew :run --args "/tmp/test-class-data.json ${GITHUB_WORKSPACE}""
       - name: Run mvn command
         run: |
           cd /tmp/gradle-gradle/.teamcity
