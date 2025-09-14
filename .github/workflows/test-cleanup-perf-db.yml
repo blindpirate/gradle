@@ -39,13 +39,11 @@ jobs:
           USE results;
           DELETE FROM testOperation WHERE testExecution IN (SELECT id FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY);
           DELETE FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
-          SELECT "results.testExecution count:" as database_table, COUNT(*) as remaining_records FROM testExecution;
-          SELECT "results.testOperation count:" as database_table, COUNT(*) as remaining_records FROM testOperation;
+          SELECT "results.testExecution count:" as database_table, COUNT(*) as stale_records FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
           USE cross_build_results;
           DELETE FROM testOperation WHERE testExecution IN (SELECT id FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY);
           DELETE FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
-          SELECT "cross_build_results.testExecution count:" as database_table, COUNT(*) as remaining_records FROM testExecution;
-          SELECT "cross_build_results.testOperation count:" as database_table, COUNT(*) as remaining_records FROM testOperation;
+          SELECT "cross_build_results.testExecution count:" as database_table, COUNT(*) as stale_records FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
           '
       
       - name: Summary
