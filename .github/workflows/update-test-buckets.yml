@@ -1,0 +1,71 @@
+name: Auto update test buckets
+
+on:
+  schedule:
+    - cron: '42 2 * * 1' # Every monday 2:42am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  update-test-buckets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Set up environment variables
+        run: |
+          echo "BOT_GRADLE_GITHUB_TOKEN=${{ secrets.BOT_GRADLE_GITHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "TEAMCITY_ACCESS_TOKEN=${{ secrets.TEAMCITY_ACCESS_TOKEN }}" >> $GITHUB_ENV
+      - name: Setup java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Clone gradle/gradle master branch
+        run: |
+          git clone https://github.com/gradle/gradle.git /tmp/gradle-gradle
+          cd /tmp/gradle-gradle
+          git checkout master
+      - name: Clone gradle/ci-health repository
+        run: |
+          git clone https://${{ env.BOT_GRADLE_GITHUB_TOKEN }}@github.com/gradle/ci-health.git /tmp/gradle-ci-health
+      - name: Run gradlew command
+        run: |
+          cd /tmp/gradle-ci-health
+          git checkout bz/cleanup
+          ./gradlew :run --args '/tmp/test-class-data.json /tmp/gradle-gradle'
+      - name: Run mvn command
+        run: |
+          cd /tmp/gradle-gradle/.teamcity
+          ./mvnw compile exec:java@update-test-buckets -DinputTestClassDataJson=/tmp/test-class-data.json
+      - name: Check for changes in ci-health repository
+        id: check-changes
+        run: |
+          cd /tmp/gradle-gradle
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: Update test buckets
+          branch: bot-update-test-buckets
+          branch-suffix: timestamp
+          delete-branch: true
+          title: 'Update test buckets'
+          signoff: true
+          sign-commits: true
+          labels: |
+            in:building-gradle
+            @dev-productivity
+          body: |
+            This PR updates the test buckets based on the latest test class data.
+          path: /tmp/gradle-gradle
