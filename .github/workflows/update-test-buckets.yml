@@ -36,7 +36,7 @@ jobs:
           ./gradlew :run --args "/tmp/test-class-data.json ${GITHUB_WORKSPACE}"
       - name: Run mvn command
         run: |
-          cd /tmp/gradle-gradle/.teamcity
+          cd ${GITHUB_WORKSPACE}/.teamcity
           ./mvnw compile exec:java@update-test-buckets -DinputTestClassDataJson=/tmp/test-class-data.json
       - name: Check for changes in ci-health repository
         id: check-changes
