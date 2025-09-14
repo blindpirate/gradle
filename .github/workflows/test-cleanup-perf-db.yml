@@ -28,7 +28,7 @@ jobs:
           # jdbc:mysql://gradle-bt-performance.xyz.eu-central-1.rds.amazonaws.com:3306 -> gradle-bt-performance.xyz.eu-central-1.rds.amazonaws.com
           echo "DB_HOST=$(echo ${PERFORMANCE_DB_URL} | cut -d/ -f3 | cut -d: -f1)" >> $GITHUB_ENV
       
-      - name: Clean up stale data from both databases
+      - name: Clean up stale data and verify results
         run: |
           echo "Cleaning up stale data from both databases..."
           docker run --rm mysql:latest mysql \
@@ -39,9 +39,13 @@ jobs:
           USE results;
           DELETE FROM testOperation WHERE testExecution IN (SELECT id FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY);
           DELETE FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
+          SELECT "results.testExecution count:" as database_table, COUNT(*) as remaining_records FROM testExecution;
+          SELECT "results.testOperation count:" as database_table, COUNT(*) as remaining_records FROM testOperation;
           USE cross_build_results;
           DELETE FROM testOperation WHERE testExecution IN (SELECT id FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY);
           DELETE FROM testExecution WHERE startTime < NOW() - INTERVAL 365 DAY;
+          SELECT "cross_build_results.testExecution count:" as database_table, COUNT(*) as remaining_records FROM testExecution;
+          SELECT "cross_build_results.testOperation count:" as database_table, COUNT(*) as remaining_records FROM testOperation;
           '
       
       - name: Summary
